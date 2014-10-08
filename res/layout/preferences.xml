@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    
+    <PreferenceCategory
+        android:key="ajustes"
+        android:title="Ajustes">
+        <PreferenceScreen
+            android:key="notificaciones"
+            android:summary="Cambia las opciones de las notificaciones (próxima versión)"
+            android:title="Cambiar notificaciones">            
+        </PreferenceScreen>
+    	<PreferenceScreen
+            android:key="acerca"         
+            android:title="Acerca de ...">            
+        </PreferenceScreen>
+    </PreferenceCategory>
+
+</PreferenceScreen>
