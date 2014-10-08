@@ -1,9 +1,12 @@
 package miguel.comidas;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.TimeZone;
 
 import miguel.comidas.DBAdapter.LocalBinder;
 import android.app.Activity;
@@ -104,18 +107,45 @@ public class Comidas extends Activity{
 	}
 
 	private void crearNotificacion(String[] dia, int dayOfMonth, int month, int year) {
+		// Para la comida
 		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis(System.currentTimeMillis());
-		calendar.add(Calendar.SECOND, 20);
+		calendar.set(Calendar.MONTH, month);
+		calendar.set(Calendar.YEAR, year);
+		calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+		calendar.set(Calendar.HOUR_OF_DAY,13);
+		calendar.set(Calendar.MINUTE, 30);
+		calendar.set(Calendar.MILLISECOND, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.AM_PM, Calendar.PM);
 		
 		Intent intent = new Intent(getApplicationContext(), Notificador.class);
 		intent.setAction("Start");
-		intent.putExtra("comida", dia);
+		intent.putExtra("comida", dia[0]);
 		
 		PendingIntent sender = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, 0);
 		
 		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-		am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);	
+		am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);
+		
+		//Para la cena
+		calendar = Calendar.getInstance();
+		calendar.set(Calendar.MONTH, month);
+		calendar.set(Calendar.YEAR, year);
+		calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+		calendar.set(Calendar.HOUR_OF_DAY,20);
+		calendar.set(Calendar.MINUTE, 30);
+		calendar.set(Calendar.MILLISECOND, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.AM_PM, Calendar.PM);
+		
+		intent = new Intent(getApplicationContext(), Notificador.class);
+		intent.setAction("Start");
+		intent.putExtra("cena", dia[1]);
+		
+		sender = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, 0);
+		
+		am = (AlarmManager) getSystemService(ALARM_SERVICE);
+		am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);
 	}
 
 

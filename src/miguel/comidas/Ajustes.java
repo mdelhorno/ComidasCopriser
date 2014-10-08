@@ -13,5 +13,6 @@ public class Ajustes extends PreferenceActivity {
         addPreferencesFromResource(R.layout.preferences);
         Preference setting = findPreference("acerca");
         setting.setIntent(new Intent (getApplicationContext(), Acerca.class));
+        
 	}
 }
