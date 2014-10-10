@@ -29,6 +29,7 @@ import android.widget.CalendarView;
 import android.widget.CalendarView.OnDateChangeListener;
 import android.widget.DatePicker;
 import android.widget.ListView;
+import android.widget.Toast;
 
 
 public class Comidas extends Activity{
@@ -84,14 +85,12 @@ public class Comidas extends Activity{
     	String [] from = new String[]{"comida","merienda","cena"};
     	int [] to = new int[]{R.id.comida,R.id.merienda,R.id.cena};
     	
-     // Creamos los datos {Nombre, Apellidos, Sexo} 
         ArrayList<String[]> data = new ArrayList<String[]>(); 
         int [] referencia = this.obtenerSemana(dayOfMonth,month,year);
         String [] diaAux = dbAdapter.getDia(referencia[0], referencia[1]);
         String [] dia = this.parsear(diaAux);
         data.add(dia);
         
-        // Asignamos las claves a los datos en un HashMap 
         ArrayList<HashMap<String, String>> People = new ArrayList<HashMap<String, String>>(); 
         for (String[] person : data) { 
         	HashMap<String, String> personData = new HashMap<String, String>();
@@ -103,7 +102,7 @@ public class Comidas extends Activity{
         
         MyAdapter ListAdapter = new MyAdapter(this, People, R.layout.list_row, from, to); 
         lista.setAdapter(ListAdapter);
-        crearNotificacion(diaAux, dayOfMonth, month, year);
+        //crearNotificacion(diaAux, dayOfMonth, month, year);
 	}
 
 	private void crearNotificacion(String[] dia, int dayOfMonth, int month, int year) {
@@ -116,10 +115,11 @@ public class Comidas extends Activity{
 		calendar.set(Calendar.MINUTE, 30);
 		calendar.set(Calendar.MILLISECOND, 0);
 		calendar.set(Calendar.SECOND, 0);
-		calendar.set(Calendar.AM_PM, Calendar.PM);
+		//calendar.set(Calendar.AM_PM, Calendar.PM);
 		
 		Intent intent = new Intent(getApplicationContext(), Notificador.class);
 		intent.setAction("Start");
+		intent.putExtra("id", "el de la comida");
 		intent.putExtra("comida", dia[0]);
 		
 		PendingIntent sender = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, 0);
@@ -128,24 +128,26 @@ public class Comidas extends Activity{
 		am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);
 		
 		//Para la cena
-		calendar = Calendar.getInstance();
-		calendar.set(Calendar.MONTH, month);
-		calendar.set(Calendar.YEAR, year);
-		calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-		calendar.set(Calendar.HOUR_OF_DAY,20);
-		calendar.set(Calendar.MINUTE, 30);
-		calendar.set(Calendar.MILLISECOND, 0);
-		calendar.set(Calendar.SECOND, 0);
-		calendar.set(Calendar.AM_PM, Calendar.PM);
+		Calendar calendar1 = Calendar.getInstance();
+		calendar1.set(Calendar.MONTH, month);
+		calendar1.set(Calendar.YEAR, year);
+		calendar1.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+		calendar1.set(Calendar.HOUR_OF_DAY,20);
+		calendar1.set(Calendar.MINUTE, 30);
+		calendar1.set(Calendar.MILLISECOND, 0);
+		calendar1.set(Calendar.SECOND, 0);
+		//calendar.set(Calendar.AM_PM, Calendar.PM);
 		
-		intent = new Intent(getApplicationContext(), Notificador.class);
-		intent.setAction("Start");
-		intent.putExtra("cena", dia[1]);
+		Intent intent2 = new Intent(getApplicationContext(), Notificador.class);
+		intent2.setAction("Start");
+		intent2.putExtra("id", "el de la cena");
+		intent2.putExtra("cena", dia[2]);
 		
-		sender = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, 0);
+		PendingIntent sender2 = PendingIntent.getBroadcast(getApplicationContext(), 0, intent2, 0);
 		
-		am = (AlarmManager) getSystemService(ALARM_SERVICE);
-		am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);
+		AlarmManager am2 = (AlarmManager) getSystemService(ALARM_SERVICE);
+		am2.set(AlarmManager.RTC_WAKEUP, calendar1.getTimeInMillis(), sender2);
+
 	}
 
 
@@ -293,6 +295,7 @@ public class Comidas extends Activity{
 			// LocalService instance
 			LocalBinder binder = (LocalBinder) service;
 			dbAdapter = binder.getService();
+			System.out.println("asñdlofjasñdlfkjasdlñ");
 			mBound = true;
 			mostrarComida(calendario.getDayOfMonth(), calendario.getMonth(), calendario.getYear());
 		}
