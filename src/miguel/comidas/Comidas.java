@@ -1,15 +1,13 @@
 package miguel.comidas;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.TimeZone;
+import java.util.HashSet;
+import java.util.Set;
 
 import miguel.comidas.DBAdapter.LocalBinder;
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Fragment;
 import android.app.NotificationManager;
@@ -18,8 +16,13 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,7 +35,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 
-public class Comidas extends Activity{
+public class Comidas extends ActionBarActivity{
 
 	// hacer en los ajustes que te avise cuando haya una comida x.
 	DatePicker calendario;
@@ -42,6 +45,10 @@ public class Comidas extends Activity{
 	boolean mBound;
 	
 	int NOTIFICATION_ID = 0;
+	
+	String [] comidaDeHoy;
+	
+	SharedPreferences preferencias;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +71,7 @@ public class Comidas extends Activity{
         		nm.cancel(NOTIFICATION_ID);
         	}
         }
+                
         
         calendario = (DatePicker) findViewById(R.id.datePicker1);
         calendario.getCalendarView().setOnDateChangeListener(new OnDateChangeListener() {
@@ -78,10 +86,11 @@ public class Comidas extends Activity{
 		});
         
         lista = (ListView)findViewById(R.id.listView1);
+        preferencias = PreferenceManager.getDefaultSharedPreferences(this);        
     }
 
 
-    protected void mostrarComida(int dayOfMonth, int month, int year) {
+    protected String [] mostrarComida(int dayOfMonth, int month, int year) {
     	String [] from = new String[]{"comida","merienda","cena"};
     	int [] to = new int[]{R.id.comida,R.id.merienda,R.id.cena};
     	
@@ -102,55 +111,75 @@ public class Comidas extends Activity{
         
         MyAdapter ListAdapter = new MyAdapter(this, People, R.layout.list_row, from, to); 
         lista.setAdapter(ListAdapter);
-        //crearNotificacion(diaAux, dayOfMonth, month, year);
+        crearNotificacionComida(diaAux[0], dayOfMonth, month, year);
+        crearNotificacionCena(diaAux[2], dayOfMonth, month, year);        		
+        return diaAux;
 	}
 
-	private void crearNotificacion(String[] dia, int dayOfMonth, int month, int year) {
+	private void crearNotificacionComida(String comida, int dayOfMonth, int month, int year) {
 		// Para la comida
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(Calendar.MONTH, month);
 		calendar.set(Calendar.YEAR, year);
 		calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-		calendar.set(Calendar.HOUR_OF_DAY,13);
-		calendar.set(Calendar.MINUTE, 30);
+		calendar.set(Calendar.HOUR_OF_DAY,12);
+		calendar.set(Calendar.MINUTE, 34);
 		calendar.set(Calendar.MILLISECOND, 0);
 		calendar.set(Calendar.SECOND, 0);
 		//calendar.set(Calendar.AM_PM, Calendar.PM);
 		
 		Intent intent = new Intent(getApplicationContext(), Notificador.class);
-		intent.setAction("Start");
-		intent.putExtra("id", "el de la comida");
-		intent.putExtra("comida", dia[0]);
-		
-		PendingIntent sender = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, 0);
+		intent.setAction("StartComida");
+		intent.putExtra("comida", comida);
+			
+		PendingIntent sender = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT);
+				
 		
 		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-		am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);
 		
-		//Para la cena
-		Calendar calendar1 = Calendar.getInstance();
-		calendar1.set(Calendar.MONTH, month);
-		calendar1.set(Calendar.YEAR, year);
-		calendar1.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-		calendar1.set(Calendar.HOUR_OF_DAY,20);
-		calendar1.set(Calendar.MINUTE, 30);
-		calendar1.set(Calendar.MILLISECOND, 0);
-		calendar1.set(Calendar.SECOND, 0);
-		//calendar.set(Calendar.AM_PM, Calendar.PM);
-		
-		Intent intent2 = new Intent(getApplicationContext(), Notificador.class);
-		intent2.setAction("Start");
-		intent2.putExtra("id", "el de la cena");
-		intent2.putExtra("cena", dia[2]);
-		
-		PendingIntent sender2 = PendingIntent.getBroadcast(getApplicationContext(), 0, intent2, 0);
-		
-		AlarmManager am2 = (AlarmManager) getSystemService(ALARM_SERVICE);
-		am2.set(AlarmManager.RTC_WAKEUP, calendar1.getTimeInMillis(), sender2);
-
+		if(Calendar.getInstance().getTimeInMillis()<calendar.getTimeInMillis())
+			if(comprobarPreferencias(calendar))
+				am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);
 	}
 
-
+	private void crearNotificacionCena(String cena, int dayOfMonth, int month, int year) {	
+		//Para la cena
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.MONTH, month);
+		calendar.set(Calendar.YEAR, year);
+		calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+		calendar.set(Calendar.HOUR_OF_DAY,12);
+		calendar.set(Calendar.MINUTE, 40);
+		calendar.set(Calendar.MILLISECOND, 0);
+		calendar.set(Calendar.SECOND, 0);
+		//calendar.set(Calendar.AM_PM, Calendar.PM);
+		
+		Intent intent = new Intent(getApplicationContext(), Notificador.class);
+		intent.setAction("StartCena");
+		intent.putExtra("cena", cena);
+		
+		PendingIntent sender = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT);
+		
+		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+		if(Calendar.getInstance().getTimeInMillis()<calendar.getTimeInMillis())
+			if(comprobarPreferencias(calendar))
+				am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);
+	}
+	
+	/**
+	 * 
+	 * @param calendar
+	 * @return true si es día de diario y tenemos seleccionado el día de diario en las preferencias o
+	 * si es fin de semana y tenemos seleccionado fin de semana en las preferncias. Devuelve false en caso contrario
+	 */
+	private boolean comprobarPreferencias(Calendar calendar) {
+		Set<String> s = preferencias.getStringSet("notificaciones", null);
+		return (s.contains("weekend") && (calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SATURDAY || calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SUNDAY)) 
+				|| (s.contains("diary") && (calendar.get(Calendar.DAY_OF_WEEK)==Calendar.MONDAY || calendar.get(Calendar.DAY_OF_WEEK)==Calendar.TUESDAY 
+				|| calendar.get(Calendar.DAY_OF_WEEK)==Calendar.WEDNESDAY || calendar.get(Calendar.DAY_OF_WEEK)==Calendar.THURSDAY 
+				|| calendar.get(Calendar.DAY_OF_WEEK)==Calendar.FRIDAY));
+	}
+	
 	private String[] parsear(String[] dia) {
 		String [] retorno = {"COMIDA:\n   ","MERIENDA:\n   "+dia[1],"CENA:\n   "};
 		int i=0;
@@ -222,6 +251,34 @@ public class Comidas extends Activity{
         
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.comidas, menu);
+        String[] retorno = this.parsear(comidaDeHoy); 
+        
+        //Botón compartir toda la comida del día
+        MenuItem compartir = menu.findItem(R.id.compartir);
+        ShareActionProvider actionProvider = (ShareActionProvider)MenuItemCompat.getActionProvider(compartir);
+        String mensaje = retorno[0]+"\n"+retorno[1]+"\n"+retorno[2];
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT,mensaje);
+        actionProvider.setShareIntent(intent);
+        
+        //Botón compartir comida
+        MenuItem compartirComida = menu.findItem(R.id.compartirComida);
+        ShareActionProvider actionProvider2 = (ShareActionProvider)MenuItemCompat.getActionProvider(compartirComida);
+        String mensaje2 = retorno[0];
+        Intent intent2 = new Intent(Intent.ACTION_SEND);
+        intent2.setType("text/plain");
+        intent2.putExtra(Intent.EXTRA_TEXT,mensaje2);
+        actionProvider2.setShareIntent(intent2);
+        
+        //Botón compartir cena
+        MenuItem compartirCena = menu.findItem(R.id.compartirCena);
+        ShareActionProvider actionProvider3 = (ShareActionProvider)MenuItemCompat.getActionProvider(compartirCena);
+        String mensaje3 = retorno[2];
+        Intent intent3 = new Intent(Intent.ACTION_SEND);
+        intent3.setType("text/plain");
+        intent3.putExtra(Intent.EXTRA_TEXT,mensaje3);
+        actionProvider3.setShareIntent(intent3);
         return true;
     }
 
@@ -295,9 +352,8 @@ public class Comidas extends Activity{
 			// LocalService instance
 			LocalBinder binder = (LocalBinder) service;
 			dbAdapter = binder.getService();
-			System.out.println("asñdlofjasñdlfkjasdlñ");
 			mBound = true;
-			mostrarComida(calendario.getDayOfMonth(), calendario.getMonth(), calendario.getYear());
+			comidaDeHoy = mostrarComida(calendario.getDayOfMonth(), calendario.getMonth(), calendario.getYear());
 		}
 
 		

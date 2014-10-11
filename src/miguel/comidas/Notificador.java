@@ -13,7 +13,6 @@ public class Notificador extends BroadcastReceiver {
 		Bundle extras = intent.getExtras();
 		String comida = extras.getString("comida");
 		String cena = extras.getString("cena");
-		Toast.makeText(context,extras.getString("id"), Toast.LENGTH_SHORT).show();
 		Intent servicio = new Intent(context,ServicioNotificador.class);
 		
 		if(comida!=null){

@@ -6,11 +6,15 @@
     <PreferenceCategory
         android:key="ajustes"
         android:title="Ajustes">
-        <PreferenceScreen
+        <MultiSelectListPreference
             android:key="notificaciones"
-            android:summary="Cambia las opciones de las notificaciones (próxima versión)"
-            android:title="Cambiar notificaciones">            
-        </PreferenceScreen>
+            android:summary="Cambia las opciones de las notificaciones"
+            android:title="Cambiar notificaciones"
+            android:dialogTitle="Seleccionar notificaciones que quiere que suenen"
+            android:entries="@array/tipoNotificacion"
+            android:entryValues="@array/tipoNotificacionInterna"
+            android:defaultValue="@array/tipoNotificacionDefault">            
+        </MultiSelectListPreference>
     	<PreferenceScreen
             android:key="acerca"         
             android:title="Acerca de ...">            

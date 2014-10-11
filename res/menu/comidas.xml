@@ -1,11 +1,30 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="miguel.comidas.Comidas" >
+    tools:context="miguel.comidas.Comidas" 
+    xmlns:myapp="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:showAsAction="never"
         android:title="@string/action_settings"/>
-
+    
+    <item 
+        android:id="@+id/compartir"
+        android:title="Compartir"
+        myapp:actionProviderClass="android.support.v7.widget.ShareActionProvider"
+		myapp:showAsAction="ifRoom"
+		android:icon="@drawable/ic_action_share"/>
+    
+    <item 
+        android:id="@+id/compartirComida"
+        android:title="Compartir comida"
+        myapp:actionProviderClass="android.support.v7.widget.ShareActionProvider"
+		myapp:showAsAction="never"/>
+    
+    <item 
+        android:id="@+id/compartirCena"
+        android:title="Compartir cena"
+        myapp:actionProviderClass="android.support.v7.widget.ShareActionProvider"
+		myapp:showAsAction="never"/>
 </menu>
