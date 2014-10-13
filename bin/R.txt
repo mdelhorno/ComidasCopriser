@@ -260,8 +260,6 @@ int id checkbox 0x7f06002d
 int id collapseActionView 0x7f06000d
 int id comida 0x7f060041
 int id compartir 0x7f060045
-int id compartirCena 0x7f060047
-int id compartirComida 0x7f060046
 int id container 0x7f06003d
 int id datePicker1 0x7f06003e
 int id default_activity_button 0x7f060028

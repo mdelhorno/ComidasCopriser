@@ -1107,8 +1107,6 @@ containing a value of this type.
         public static final int collapseActionView=0x7f06000d;
         public static final int comida=0x7f060041;
         public static final int compartir=0x7f060045;
-        public static final int compartirCena=0x7f060047;
-        public static final int compartirComida=0x7f060046;
         public static final int container=0x7f06003d;
         public static final int datePicker1=0x7f06003e;
         public static final int default_activity_button=0x7f060028;

@@ -15,16 +15,4 @@
         myapp:actionProviderClass="android.support.v7.widget.ShareActionProvider"
 		myapp:showAsAction="ifRoom"
 		android:icon="@drawable/ic_action_share"/>
-    
-    <item 
-        android:id="@+id/compartirComida"
-        android:title="Compartir comida"
-        myapp:actionProviderClass="android.support.v7.widget.ShareActionProvider"
-		myapp:showAsAction="never"/>
-    
-    <item 
-        android:id="@+id/compartirCena"
-        android:title="Compartir cena"
-        myapp:actionProviderClass="android.support.v7.widget.ShareActionProvider"
-		myapp:showAsAction="never"/>
 </menu>

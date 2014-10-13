@@ -8,8 +8,9 @@
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Comidas Benjamín Palencia es una aplicación desarrollada para conocer el menú que hay cada día en el comedor de la
-residencia universitaria Benjamín Palencia de Albacete\n\nVersión Beta\n\nDesarrollada por Miguel Martínez del Horno"
+        android:text="Comidas Copriser es una aplicación desarrollada para conocer el menú que hay cada día en el comedor de la
+residencia universitaria Benjamín Palencia de Albacete. Esta aplicación también sirve para cualquier residencia universitaria de la empresa Copriser.
+\nDesarrollada por Miguel Martínez del Horno"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </LinearLayout>
