@@ -19,6 +19,12 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
+/** BroadcastReceiver que se lanza a la hora que será lanzada la notificación (13:30 para la comida o 20:30 para la cena).
+ * Cuando se recive, lanza el ServicioNotificador, preparando previamente el Intent que lo lanza.
+ * 
+ * @author Miguel
+ *
+ */
 public class Notificador extends BroadcastReceiver {
 	
 	@Override
@@ -37,6 +43,7 @@ public class Notificador extends BroadcastReceiver {
 		servicio.putExtra("id", extras.getIntArray("id"));
 		
 		context.startService(servicio);
+		
 	}
 	
 	

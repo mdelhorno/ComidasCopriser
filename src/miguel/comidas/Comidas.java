@@ -6,7 +6,6 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import miguel.comidas.DBAdapter.LocalBinder;
@@ -19,9 +18,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -45,7 +41,7 @@ public class Comidas extends ActionBarActivity{
 	// hacer en los ajustes que te avise cuando haya una comida x.
 	DatePicker calendario;
 	ListView lista;
-	
+	 
 	DBAdapter dbAdapter;
 	boolean mBound;
 	
@@ -95,6 +91,14 @@ public class Comidas extends ActionBarActivity{
     }
 
 
+    /** Recupera y muestra la comida de un día determinado, el que se pasa como parámetro. Retorna la comida de ese día
+     * en un vector de Strings.
+     * 
+     * @param dayOfMonth 
+     * @param month
+     * @param year
+     * @return vector de String con la comida del día indicado (sin parsear).
+     */
     protected String [] mostrarComida(int dayOfMonth, int month, int year) {
     	String [] from = new String[]{"comida","merienda","cena"};
     	int [] to = new int[]{R.id.comida,R.id.merienda,R.id.cena};
@@ -121,6 +125,14 @@ public class Comidas extends ActionBarActivity{
         return diaAux;
 	}
 
+    /** Crea la notificación para la comida de un día en concreto, el cual se le pasa como parámetro. La notificación
+     * saldrá a las 13:30 de ese día. Antes de lanzarla comprueba las preferencias del usuario.
+     * 
+     * @param comida comida de ese día
+     * @param dayOfMonth
+     * @param month
+     * @param year
+     */
 	private void crearNotificacionComida(String comida, int dayOfMonth, int month, int year) {
 		// Para la comida
 		Calendar calendar = Calendar.getInstance();
@@ -147,6 +159,15 @@ public class Comidas extends ActionBarActivity{
 			am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);
 	}
 
+	/** Crea la notificación para la cena de un día en concreto, el cual se le pasa como parámetro. La notificación
+     * saldrá a las 20:30 de ese día. Antes de lanzarla comprueba las preferencias del usuario y además no lanza la
+     * notificación si es un sábado o un domingo.
+	 * 
+	 * @param cena cena de ese día
+	 * @param dayOfMonth
+	 * @param month
+	 * @param year
+	 */
 	private void crearNotificacionCena(String cena, int dayOfMonth, int month, int year) {	
 		//Para la cena
 		Calendar calendar = Calendar.getInstance();
@@ -167,13 +188,15 @@ public class Comidas extends ActionBarActivity{
 		PendingIntent sender = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT);
 		
 		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-		if(Calendar.getInstance().getTimeInMillis()<calendar.getTimeInMillis() && comprobarPreferencias(calendar))
+		if(Calendar.getInstance().getTimeInMillis()<calendar.getTimeInMillis() && comprobarPreferencias(calendar) &&
+				calendar.get(Calendar.DAY_OF_WEEK)!=Calendar.SATURDAY && calendar.get(Calendar.DAY_OF_WEEK)!=Calendar.SUNDAY)
 			am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);
 	}
 	
-	/**
+	/** Devuelve verdadero o falso si las preferencias se cumplen o no. Para ello comprueba si están activas las notificaciones
+	 * de entre diario y es día de diario o si están activas las notificaciones de los fines de semana y es fin de semana.
 	 * 
-	 * @param calendar
+	 * @param calendar Calendario con la fecha en la que se quiere poner la notificación
 	 * @return true si es día de diario y tenemos seleccionado el día de diario en las preferencias o
 	 * si es fin de semana y tenemos seleccionado fin de semana en las preferencias. Devuelve false en caso contrario
 	 */
@@ -188,6 +211,14 @@ public class Comidas extends ActionBarActivity{
 				|| calendar.get(Calendar.DAY_OF_WEEK)==Calendar.FRIDAY));
 	}
 	
+	/** Parsea un día anteponiendo COMIDA, MERIENDA o CENA, dependiendo de lo que se trate, y quita las comas. Desde la base
+	 * de datos nos viene: {"Ensalada campera, Muslo de pollo asado, Fruta","Bocadillo de queso","Sopa juliana, Marrajo, Lácteo"}.
+	 * La salida sería {"COMIDA:\n   Ensalada campera\n   Muslo de pollo asado\n   Fruta","MERIENDA:\n   Bocadillo de queso",
+	 * "CENA:\n   Sopa juliana\n   Marrajo\n   Lácteo"}
+	 * 
+	 * @param dia
+	 * @return 
+	 */
 	private String[] parsear(String[] dia) {
 		String [] retorno = {"COMIDA:\n   ","MERIENDA:\n   "+dia[1],"CENA:\n   "};
 		int i=0;
@@ -230,6 +261,15 @@ public class Comidas extends ActionBarActivity{
 		return retorno;
 	}
 
+	/** Obtiene la semana y el día que hay que obtener de la base de datos a partir de un día dado. La base de datos está
+	 * organizada en 6 semanas, cada una de 7 días. Para obtener la semana de la que se trata utiliza la semana 6 como 
+	 * referencia, pues esta semana es la semana con la cual empieza el menú desde la primera semana.
+	 * 
+	 * @param dayOfMonth
+	 * @param month
+	 * @param year
+	 * @return
+	 */
 	private int[] obtenerSemana(int dayOfMonth, int month, int year) {
 		GregorianCalendar fecha = new GregorianCalendar(year, month, dayOfMonth);
 		
@@ -260,23 +300,13 @@ public class Comidas extends ActionBarActivity{
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.comidas, menu);
         String[] retorno = this.parsear(comidaDeHoy); 
-        
-        
+         
         //Botón compartir toda la comida del día
         MenuItem compartir = menu.findItem(R.id.compartir);
         ShareActionProvider actionProvider = (ShareActionProvider)MenuItemCompat.getActionProvider(compartir);
-        String mensaje = "";
+        String mensaje = retorno[0]+"\n"+retorno[1]+"\n"+retorno[2];;
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
-        
-        Calendar calendar = Calendar.getInstance();
-        
-        if(calendar.get(Calendar.HOUR_OF_DAY)>=0 && calendar.get(Calendar.HOUR_OF_DAY)<=15){
-        	mensaje = retorno[0];
-        } else {
-        	mensaje = retorno[2];
-        }
-        
         intent.putExtra(Intent.EXTRA_TEXT,mensaje);
         actionProvider.setShareIntent(intent);                      
         

@@ -15,10 +15,15 @@
             android:entryValues="@array/tipoNotificacionInterna"
             android:defaultValue="@array/tipoNotificacionDefault">            
         </MultiSelectListPreference>
-    	<PreferenceScreen
+
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="about"
+        android:title="Acerca">
+        <PreferenceScreen
             android:key="acerca"         
             android:title="Acerca de ...">            
-        </PreferenceScreen>
+        </PreferenceScreen>     
     </PreferenceCategory>
 
 </PreferenceScreen>

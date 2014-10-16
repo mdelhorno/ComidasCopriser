@@ -4,7 +4,7 @@ INSERT INTO comidas VALUES (3,1,3,"Tortilla de patatas, Lomo con queso, Lácteo"
 INSERT INTO comidas VALUES (4,1,4,"Espaguettis carbonara, Fogonero bilbaína, Fruta","Bocadillo de salchichón","Crema de puerros, Cordon blue, Lácteo");
 INSERT INTO comidas VALUES (5,1,5,"Salmorejo cordobés, Alas de pollo marinadas, Postre casero","Bocadillo de nocilla","Champiñón al ajillo, Tilapia en salsa de pimientos, Fruta");
 INSERT INTO comidas VALUES (6,1,6,"Arroz 3 delicias, Merluza a la vasca, Fruta","Zumo de frutas y bollería embolsada","Picnic: Bocadillo caliente, bocadillo frío, fruta, agua");
-INSERT INTO comidas VALUES (7,1,7,"Sopa castellana, Salchicas con pisto, Fruta","Zumo de frutas y bollería embolsada","Picnic: Bocadillo caliente, bocadillo frío, fruta, agua");
+INSERT INTO comidas VALUES (7,1,7,"Sopa castellana, Salchichas con pisto, Fruta","Zumo de frutas y bollería embolsada","Picnic: Bocadillo caliente, bocadillo frío, fruta, agua");
 INSERT INTO comidas VALUES (8,2,1,"Macarrones boloñesa, Tilapia al horno, Fruta","Bocadillo de chorizo","Tortilla con salteado de verduras, Magra en salsa, Lácteo");
 INSERT INTO comidas VALUES (9,2,2,"Crema de calabacín, Pechuga de pollo a la plancha, Fruta","Bocadillo de york","Ensaladilla rusa, Marrajo con tomate, Fruta");
 INSERT INTO comidas VALUES (10,2,3,"Arroz caldoso, Filete de merluza, Lácteo","Bocadillo de salami","Espinacas salteadas, Salchicas encebolladas, Fruta");

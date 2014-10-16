@@ -13,6 +13,13 @@ import android.database.sqlite.SQLiteException;
 import android.os.Binder;
 import android.os.IBinder;
 
+/** Servicio que interactúa con la base de datos. Al crearse crea la base de datos y cuando se destruye cierra la BBDD.
+ * Proporciona métodos para insertar, borrar, editar y obtener la comida de un día y para obtener la comida de todos 
+ * los días.
+ * 
+ * @author Miguel
+ *
+ */
 public class DBAdapter extends Service {
 
 	private final IBinder mBinder = new LocalBinder();

@@ -31,6 +31,7 @@ public class Ajustes extends PreferenceActivity {
         	finish();
             return true;
         }
+        
         return super.onOptionsItemSelected(item);
     }
 }

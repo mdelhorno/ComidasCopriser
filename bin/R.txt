@@ -4,9 +4,11 @@ int anim abc_slide_in_bottom 0x7f040002
 int anim abc_slide_in_top 0x7f040003
 int anim abc_slide_out_bottom 0x7f040004
 int anim abc_slide_out_top 0x7f040005
-int array tipoNotificacion 0x7f0d0000
-int array tipoNotificacionDefault 0x7f0d0002
-int array tipoNotificacionInterna 0x7f0d0001
+int array tipoCompartir 0x7f0d0000
+int array tipoCompartirInterna 0x7f0d0001
+int array tipoNotificacion 0x7f0d0002
+int array tipoNotificacionDefault 0x7f0d0004
+int array tipoNotificacionInterna 0x7f0d0003
 int attr actionBarDivider 0x7f01000f
 int attr actionBarItemBackground 0x7f010010
 int attr actionBarSize 0x7f01000e

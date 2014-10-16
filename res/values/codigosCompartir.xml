@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="tipoCompartir">
+        <item>Todo</item>
+        <item>Comida</item>
+        <item>Cena</item>
+        <item>En función de la hora</item>
+    </string-array>
+    <string-array name="tipoCompartirInterna">
+        <item>all</item>
+        <item>lunch</item>
+        <item>dinner</item>
+        <item>hour</item>
+    </string-array>
+</resources>
