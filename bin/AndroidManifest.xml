@@ -7,8 +7,8 @@
 
     <uses-sdk
         android:minSdkVersion="15"
-        android:targetSdkVersion="15"        />
-    
+        android:targetSdkVersion="15"/>
+        
     
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -44,6 +44,11 @@
         <service android:name="miguel.comidas.DBAdapter"></service>
         <receiver android:name="miguel.comidas.Notificador"></receiver>
         <service android:name="miguel.comidas.ServicioNotificador"></service>
+        
+         <activity android:name="com.google.android.gms.ads.AdActivity"
+             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"/>
+         <meta-data android:name="com.google.android.gms.version"
+               android:value="@integer/google_play_services_version"/>
     </application>
 
 </manifest>

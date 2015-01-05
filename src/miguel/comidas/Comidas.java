@@ -24,6 +24,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.ShareActionProvider;
+import com.google.android.gms.ads.*;
 
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -35,6 +36,7 @@ import android.widget.CalendarView.OnDateChangeListener;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 
 
 public class Comidas extends ActionBarActivity{
@@ -42,6 +44,7 @@ public class Comidas extends ActionBarActivity{
 	private static final String MY_AD_UNIT_ID = "ca-app-pub-7843685751582225/5840237790";
 	DatePicker calendario;
 	ListView lista;
+	private AdView adView;
 	 
 	DBAdapter dbAdapter;
 	boolean mBound;
@@ -75,8 +78,6 @@ public class Comidas extends ActionBarActivity{
         
         calendario = (DatePicker) findViewById(R.id.datePicker1);
         System.out.println(calendario.getCalendarViewShown());
-//        calendario.init(Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH), 
-//        		Calendar.getInstance().get(Calendar.DAY_OF_MONTH), listener);
         
         calendario.getCalendarView().setOnDateChangeListener(new OnDateChangeListener() {
 			
@@ -90,17 +91,26 @@ public class Comidas extends ActionBarActivity{
 		});
         
         lista = (ListView)findViewById(R.id.listView1); 
+        
+     // Crear adView.
+        adView = new AdView(this);
+        adView.setAdUnitId(MY_AD_UNIT_ID);
+        adView.setAdSize(AdSize.BANNER);
+
+        // Buscar LinearLayout suponiendo que se le ha asignado
+        // el atributo android:id="@+id/mainLayout".
+        RelativeLayout layout = (RelativeLayout)findViewById(R.id.container);
+        System.out.println("asdfasd "+layout);
+        // Añadirle adView.
+        layout.addView(adView);
+
+        // Iniciar una solicitud genérica.
+        AdRequest adRequest = new AdRequest.Builder().build();
+
+        // Cargar adView con la solicitud de anuncio.
+        adView.loadAd(adRequest);
     }
-    private DatePicker.OnDateChangedListener listener = new DatePicker.OnDateChangedListener() {
-		
-		@Override
-		public void onDateChanged(DatePicker view, int year, int monthOfYear,
-				int dayOfMonth) {
-			calendario.init(year, monthOfYear, dayOfMonth, listener);
-			mostrarComida(dayOfMonth,monthOfYear,year);
-		}
-	};
- 
+    
     
     
     /** Recupera y muestra la comida de un día determinado, el que se pasa como parámetro. Retorna la comida de ese día
@@ -298,16 +308,19 @@ public class Comidas extends ActionBarActivity{
         		nm.cancel(NOTIFICATION_ID);
         	}
         }
+		adView.resume();
 	}
 	
 	 @Override
 	  public void onPause() {
-	    super.onPause();
+		 adView.pause();
+		 super.onPause();
 	  }
 
 	  @Override
 	  public void onDestroy() {
-	    super.onDestroy();
+		  adView.destroy();
+		  super.onDestroy();
 	  }
  
 
