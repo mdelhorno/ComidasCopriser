@@ -40,10 +40,10 @@ public class Notificador extends BroadcastReceiver {
 			servicio.putExtra("cena", cena);
 		}
 		
-		servicio.putExtra("id", extras.getIntArray("id"));
+		servicio.putExtra("lanzar", true);
+		servicio.putExtra("id", extras.getSerializable("id"));
 		
 		context.startService(servicio);
-		
 	}
 	
 	

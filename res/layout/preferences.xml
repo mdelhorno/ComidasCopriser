@@ -15,7 +15,11 @@
             android:entryValues="@array/tipoNotificacionInterna"
             android:defaultValue="@array/tipoNotificacionDefault">            
         </MultiSelectListPreference>
-
+		<PreferenceScreen
+		    android:key="reiniciar"
+		    android:title="Reparar notificaciones"
+		    android:summary="Si tienes problemas con las notificaciones haz clic aquí">
+		</PreferenceScreen>
     </PreferenceCategory>
     <PreferenceCategory
         android:key="about"

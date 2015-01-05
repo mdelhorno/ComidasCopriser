@@ -24,6 +24,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.ShareActionProvider;
+
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,13 +33,13 @@ import android.view.ViewGroup;
 import android.widget.CalendarView;
 import android.widget.CalendarView.OnDateChangeListener;
 import android.widget.DatePicker;
+import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Toast;
 
 
 public class Comidas extends ActionBarActivity{
 
-	// hacer en los ajustes que te avise cuando haya una comida x.
+	private static final String MY_AD_UNIT_ID = "ca-app-pub-7843685751582225/5840237790";
 	DatePicker calendario;
 	ListView lista;
 	 
@@ -48,9 +49,7 @@ public class Comidas extends ActionBarActivity{
 	int NOTIFICATION_ID = 0;
 	
 	String [] comidaDeHoy;
-	
-	SharedPreferences preferencias;
-	
+	    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,7 +61,7 @@ public class Comidas extends ActionBarActivity{
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
         }
-        
+      
         if(this.getIntent().getExtras() != null){
         	Boolean notif=getIntent().getExtras().getBoolean("Notification");
         	NotificationManager nm;
@@ -72,9 +71,13 @@ public class Comidas extends ActionBarActivity{
         		nm.cancel(NOTIFICATION_ID);
         	}
         }
-                
+               
         
         calendario = (DatePicker) findViewById(R.id.datePicker1);
+        System.out.println(calendario.getCalendarViewShown());
+//        calendario.init(Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH), 
+//        		Calendar.getInstance().get(Calendar.DAY_OF_MONTH), listener);
+        
         calendario.getCalendarView().setOnDateChangeListener(new OnDateChangeListener() {
 			
 			@Override
@@ -86,11 +89,20 @@ public class Comidas extends ActionBarActivity{
 			}
 		});
         
-        lista = (ListView)findViewById(R.id.listView1);
-        preferencias = PreferenceManager.getDefaultSharedPreferences(this);   
+        lista = (ListView)findViewById(R.id.listView1); 
     }
-
-
+    private DatePicker.OnDateChangedListener listener = new DatePicker.OnDateChangedListener() {
+		
+		@Override
+		public void onDateChanged(DatePicker view, int year, int monthOfYear,
+				int dayOfMonth) {
+			calendario.init(year, monthOfYear, dayOfMonth, listener);
+			mostrarComida(dayOfMonth,monthOfYear,year);
+		}
+	};
+ 
+    
+    
     /** Recupera y muestra la comida de un día determinado, el que se pasa como parámetro. Retorna la comida de ese día
      * en un vector de Strings.
      * 
@@ -108,7 +120,7 @@ public class Comidas extends ActionBarActivity{
         String [] diaAux = dbAdapter.getDia(referencia[0], referencia[1]);
         String [] dia = this.parsear(diaAux);
         data.add(dia);
-        
+         
         ArrayList<HashMap<String, String>> People = new ArrayList<HashMap<String, String>>(); 
         for (String[] person : data) { 
         	HashMap<String, String> personData = new HashMap<String, String>();
@@ -119,97 +131,10 @@ public class Comidas extends ActionBarActivity{
         }
         
         MyAdapter ListAdapter = new MyAdapter(this, People, R.layout.list_row, from, to); 
-        lista.setAdapter(ListAdapter);
-        crearNotificacionComida(diaAux[0], dayOfMonth, month, year);
-        crearNotificacionCena(diaAux[2], dayOfMonth, month, year);        		
+        lista.setAdapter(ListAdapter);      		
         return diaAux;
 	}
 
-    /** Crea la notificación para la comida de un día en concreto, el cual se le pasa como parámetro. La notificación
-     * saldrá a las 13:30 de ese día. Antes de lanzarla comprueba las preferencias del usuario.
-     * 
-     * @param comida comida de ese día
-     * @param dayOfMonth
-     * @param month
-     * @param year
-     */
-	private void crearNotificacionComida(String comida, int dayOfMonth, int month, int year) {
-		// Para la comida
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(Calendar.MONTH, month);
-		calendar.set(Calendar.YEAR, year);
-		calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-		calendar.set(Calendar.HOUR_OF_DAY,13);
-		calendar.set(Calendar.MINUTE, 30);
-		calendar.set(Calendar.MILLISECOND, 0);
-		calendar.set(Calendar.SECOND, 0);
-		//calendar.set(Calendar.AM_PM, Calendar.PM);
-		
-		Intent intent = new Intent(getApplicationContext(), Notificador.class);
-		intent.setAction("StartComida");
-		intent.putExtra("comida", comida);
-		intent.putExtra("id", new int[]{dayOfMonth,month,year});
-		
-		PendingIntent sender = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT);
-				
-		
-		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-		
-		if(Calendar.getInstance().getTimeInMillis()<calendar.getTimeInMillis() && comprobarPreferencias(calendar))
-			am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);
-	}
-
-	/** Crea la notificación para la cena de un día en concreto, el cual se le pasa como parámetro. La notificación
-     * saldrá a las 20:30 de ese día. Antes de lanzarla comprueba las preferencias del usuario y además no lanza la
-     * notificación si es un sábado o un domingo.
-	 * 
-	 * @param cena cena de ese día
-	 * @param dayOfMonth
-	 * @param month
-	 * @param year
-	 */
-	private void crearNotificacionCena(String cena, int dayOfMonth, int month, int year) {	
-		//Para la cena
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(Calendar.MONTH, month);
-		calendar.set(Calendar.YEAR, year);
-		calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-		calendar.set(Calendar.HOUR_OF_DAY,20);
-		calendar.set(Calendar.MINUTE, 30);
-		calendar.set(Calendar.MILLISECOND, 0);
-		calendar.set(Calendar.SECOND, 0);
-		//calendar.set(Calendar.AM_PM, Calendar.PM);
-		
-		Intent intent = new Intent(getApplicationContext(), Notificador.class);
-		intent.setAction("StartCena");
-		intent.putExtra("id", new int[]{dayOfMonth,month,year});
-		intent.putExtra("cena", cena);
-		
-		PendingIntent sender = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT);
-		
-		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-		if(Calendar.getInstance().getTimeInMillis()<calendar.getTimeInMillis() && comprobarPreferencias(calendar) &&
-				calendar.get(Calendar.DAY_OF_WEEK)!=Calendar.SATURDAY && calendar.get(Calendar.DAY_OF_WEEK)!=Calendar.SUNDAY)
-			am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);
-	}
-	
-	/** Devuelve verdadero o falso si las preferencias se cumplen o no. Para ello comprueba si están activas las notificaciones
-	 * de entre diario y es día de diario o si están activas las notificaciones de los fines de semana y es fin de semana.
-	 * 
-	 * @param calendar Calendario con la fecha en la que se quiere poner la notificación
-	 * @return true si es día de diario y tenemos seleccionado el día de diario en las preferencias o
-	 * si es fin de semana y tenemos seleccionado fin de semana en las preferencias. Devuelve false en caso contrario
-	 */
-	private boolean comprobarPreferencias(Calendar calendar) {
-		Set<String> a = new HashSet<String>();
-		a.add("diary");
-		a.add("weekend");
-		Set<String> s = preferencias.getStringSet("notificaciones", a);		
-		return (s.contains("weekend") && (calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SATURDAY || calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SUNDAY)) 
-				|| (s.contains("diary") && (calendar.get(Calendar.DAY_OF_WEEK)==Calendar.MONDAY || calendar.get(Calendar.DAY_OF_WEEK)==Calendar.TUESDAY 
-				|| calendar.get(Calendar.DAY_OF_WEEK)==Calendar.WEDNESDAY || calendar.get(Calendar.DAY_OF_WEEK)==Calendar.THURSDAY 
-				|| calendar.get(Calendar.DAY_OF_WEEK)==Calendar.FRIDAY));
-	}
 	
 	/** Parsea un día anteponiendo COMIDA, MERIENDA o CENA, dependiendo de lo que se trate, y quita las comas. Desde la base
 	 * de datos nos viene: {"Ensalada campera, Muslo de pollo asado, Fruta","Bocadillo de queso","Sopa juliana, Marrajo, Lácteo"}.
@@ -374,6 +299,17 @@ public class Comidas extends ActionBarActivity{
         	}
         }
 	}
+	
+	 @Override
+	  public void onPause() {
+	    super.onPause();
+	  }
+
+	  @Override
+	  public void onDestroy() {
+	    super.onDestroy();
+	  }
+ 
 
 	private ServiceConnection mConnection = new ServiceConnection() {
 

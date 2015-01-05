@@ -34,6 +34,8 @@ import android.widget.Toast;
  * Recibe un Intent que contiene la comida o cena (dependiendo de la notificacion de la que se trate) y el día del que
  * se trata. Una vez mostrada la notificacion, accede a la base de datos para coger la cena de ese día (si la notificación
  * es de la comida) o la comida del día siguiente (si la notificación es de la cena).
+ * También se utiliza para reparar o iniciar las notificaciones. Esto lo realiza cuando el intent que inicia este servicio no cuenta
+ * con el campo "lanzar" en sus extras.
  * 
  * @author Miguel
  *
@@ -41,9 +43,9 @@ import android.widget.Toast;
 public class ServicioNotificador extends Service {
 
 	int NOTIFICATION_ID = 0;	
-	boolean esComida;
 	SharedPreferences preferencias;
-	
+	boolean esComida;
+	boolean sumar = false; //cuando esta variable vale true hay que sumar un día al calendario 
 	private DBHelper dbHelper;
 
 	private SQLiteDatabase db;
@@ -54,12 +56,21 @@ public class ServicioNotificador extends Service {
 		return null;
 	}
 	
+
 	public void onStart(Intent intent, int startId){
-		super.onStart(intent, startId);
 		Bundle bundle = intent.getExtras();
 		preferencias = PreferenceManager.getDefaultSharedPreferences(this);
-		lanzarNotificacion(bundle);
-		prepararSigNotificacion(bundle.getIntArray("id"));
+		
+		
+		if(bundle.containsKey("lanzar") && bundle.getBoolean("lanzar")){ 
+			//lanzamos la notificación  
+			lanzarNotificacion(bundle);
+			sumar = true; //se suma cuando lanzamos la notificación. Si no, se trataría de un inicio o reinicio de las 
+			//notificaciones, y en ese caso ya se pasa la fecha correcta.
+		}  
+		esComida = bundle.containsKey("comida");
+		prepararSigNotificacion((Calendar)bundle.getSerializable("id"));
+		
 		this.stopSelf();
 	}
 	
@@ -85,64 +96,74 @@ public class ServicioNotificador extends Service {
 	 */
 	private void lanzarNotificacion(Bundle bundle){
 		String comida = bundle.getString("comida");
-		String cena = bundle.getString("cena");
-		
-		NotificationManager nm = (NotificationManager)this.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-		
+		String cena = bundle.getString("cena");		
+		Calendar calendar = (Calendar) bundle.getSerializable("id");
+		boolean lanzar = true; //expresa si se tiene que lanzar o no la notificación. Valdrá false cuando sea una cena del finde
 		CharSequence from = null;
 		CharSequence message = null;
+		
 		if(comida!=null){
 			from = "Comida";
 			message = comida;
-			esComida = true;
 		} else if(cena!=null){
 			from = "Cena";
 			message = cena;
-			esComida = false;
+			if(calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SATURDAY || calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SUNDAY){
+				lanzar = false;
+			}
 		}
 		
-		Intent inte = new Intent(this.getApplicationContext(), Comidas.class);
-		inte.putExtra("Notification", true);
-		PendingIntent contentIntent = PendingIntent.getActivity(this.getApplicationContext(), 0, inte, PendingIntent.FLAG_CANCEL_CURRENT);
+		if(lanzar && comprobarPreferencias(calendar)){
+			NotificationManager nm = (NotificationManager)this.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+			Intent inte = new Intent(this.getApplicationContext(), Comidas.class);
+			inte.putExtra("Notification", true);
+			PendingIntent contentIntent = PendingIntent.getActivity(this.getApplicationContext(), 0, inte, PendingIntent.FLAG_ONE_SHOT 
+					| PendingIntent.FLAG_CANCEL_CURRENT);
+			
+			Builder notification = new Notification.Builder(getApplicationContext());
+			notification.setContentTitle(from)
+				.setContentText(message)
+				.setSmallIcon(R.drawable.logotipo)
+				.setContentIntent(contentIntent)
+				.setWhen(System.currentTimeMillis())
+				.setDefaults(Notification.DEFAULT_ALL);
+			
+			
+			nm.notify(NOTIFICATION_ID, notification.getNotification());
+		}
 		
-		Builder notification = new Notification.Builder(getApplicationContext());
-		notification.setContentTitle(from)
-			.setContentText(message)
-			.setSmallIcon(R.drawable.logotipo)
-			.setContentIntent(contentIntent)
-			.setWhen(System.currentTimeMillis())
-			.setDefaults(Notification.DEFAULT_ALL);
-		
-		nm.notify(NOTIFICATION_ID, notification.getNotification());
 	}
 	
-	/** Prepara la siguiente notificación, la del día que se le pasa como parámetro. Si la notificación que se ha lanzado
-	 * es de la comida, prepara la notificación de la cena de ese día, mientras que si la notificación es de la cena,
-	 * prepara la notificación de la comida del día siguiente.
+	/** Prepara la siguiente notificación. Si la notificación actual es una comida, preparamos una cena, y viceversa
 	 * 
-	 * @param dia vector de enteros que lleva en la posicion 0 el día, en la 1 el mes y en la 2 el año.
+	 * @param calendar fecha de la comida
 	 */
-	private void prepararSigNotificacion(int[] dia) {					
-		if(esComida){
-			int [] referencia = this.obtenerSemana(dia[0], dia[1], dia[2]);
+	private void prepararSigNotificacion(Calendar calendar) {	
+		if(esComida){ //preparamos una cena (la ultima notificación era una comida)
+			calendar.set(Calendar.HOUR_OF_DAY,20);
+			calendar.set(Calendar.MINUTE, 30);
+			calendar.set(Calendar.MILLISECOND, 0);
+			calendar.set(Calendar.SECOND, 0);
+			
+			int [] referencia = this.obtenerSemana(calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH), 
+					calendar.get(Calendar.YEAR));
 			String cena = getDia(referencia[0], referencia[1])[2];
-			this.crearNotificacionCena(cena, dia[0], dia[1], dia[2]);
+			this.crearNotificacionCena(cena, calendar);
 		} else {
-			Calendar calendar = Calendar.getInstance();
-			calendar.set(Calendar.MONTH, dia[1]);
-			calendar.set(Calendar.YEAR, dia[2]);
-			calendar.set(Calendar.DAY_OF_MONTH, dia[0]);
+			if(sumar)
+				calendar.add(Calendar.DAY_OF_MONTH, 1);
 			calendar.set(Calendar.HOUR_OF_DAY,13);
 			calendar.set(Calendar.MINUTE, 30);
 			calendar.set(Calendar.MILLISECOND, 0);
 			calendar.set(Calendar.SECOND, 0);
-			calendar.add(Calendar.DAY_OF_MONTH, 1);
 
-			int [] referencia = this.obtenerSemana(dia[0], dia[1], dia[2]);
+			int [] referencia = this.obtenerSemana(calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH), 
+					calendar.get(Calendar.YEAR));
 			String comida = getDia(referencia[0], referencia[1])[0];
 			this.crearNotificacionComida(comida,calendar);
 		}	
 	}
+	
 	
 	/** Crea la notificación para la comida de un día en concreto, el cual se le pasa como parámetro. La notificación
      * saldrá a las 13:30 de ese día. Antes de lanzarla comprueba las preferencias del usuario.
@@ -155,49 +176,39 @@ public class ServicioNotificador extends Service {
 		Intent intent = new Intent(getApplicationContext(), Notificador.class);
 		intent.setAction("StartComida");
 		intent.putExtra("comida", comida);
-		intent.putExtra("id", new int[]{calendar.get(Calendar.DAY_OF_MONTH),calendar.get(Calendar.MONTH),
-				calendar.get(Calendar.YEAR)});
+		intent.putExtra("id", calendar);
 		
-		PendingIntent sender = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT);		
+		PendingIntent sender = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT 
+				| PendingIntent.FLAG_UPDATE_CURRENT);		
 		
 		AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
 		
-		if(Calendar.getInstance().getTimeInMillis()<calendar.getTimeInMillis() && comprobarPreferencias(calendar))
+		if(Calendar.getInstance().getTimeInMillis()<calendar.getTimeInMillis())
 			am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);
 	}
 
+	
 	/** Crea la notificación para la cena de un día en concreto, el cual se le pasa como parámetro. La notificación
      * saldrá a las 20:30 de ese día. Antes de lanzarla comprueba las preferencias del usuario y además no lanza la
      * notificación si es un sábado o un domingo.
 	 * 
 	 * @param cena cena de ese día
-	 * @param dayOfMonth
-	 * @param month
-	 * @param year
+	 * @param calendar Calendario que contiene el día y la hora que se lanzará la notificación
 	 */
-	private void crearNotificacionCena(String cena, int dayOfMonth, int month, int year) {	
+	private void crearNotificacionCena(String cena, Calendar calendar) {	
 		//Para la cena
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(Calendar.MONTH, month);
-		calendar.set(Calendar.YEAR, year);
-		calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-		calendar.set(Calendar.HOUR_OF_DAY,20);
-		calendar.set(Calendar.MINUTE, 30);
-		calendar.set(Calendar.MILLISECOND, 0);
-		calendar.set(Calendar.SECOND, 0);
-		//calendar.set(Calendar.AM_PM, Calendar.PM);
-		
 		Intent intent = new Intent(getApplicationContext(), Notificador.class);
 		intent.setAction("StartCena");
-		intent.putExtra("id", new int[]{dayOfMonth,month,year});
+		intent.putExtra("id", calendar);
 		intent.putExtra("cena", cena);
 		
-		PendingIntent sender = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT);
+		PendingIntent sender = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT 
+				| PendingIntent.FLAG_UPDATE_CURRENT);
 		
 		AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-		if(Calendar.getInstance().getTimeInMillis()<calendar.getTimeInMillis() && comprobarPreferencias(calendar) &&
-				calendar.get(Calendar.DAY_OF_WEEK)!=Calendar.SATURDAY && calendar.get(Calendar.DAY_OF_WEEK)!=Calendar.SUNDAY)
+		if(Calendar.getInstance().getTimeInMillis()<calendar.getTimeInMillis())
 			am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);
+
 	}
 	
 	/** Devuelve verdadero o falso si las preferencias se cumplen o no. Para ello comprueba si están activas las notificaciones

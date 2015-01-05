@@ -1,10 +1,14 @@
 package miguel.comidas;
 
+import miguel.comidas.Comidas.PlaceholderFragment;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
 
 public class Acerca extends Activity {
 	@Override
@@ -12,8 +16,20 @@ public class Acerca extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.acercade);
 		ActionBar actionBar = getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+		
+		if(actionBar != null)
+			actionBar.setDisplayHomeAsUpEnabled(true);
       
+//		LinearLayout root = (LinearLayout)findViewById(R.layout.acercade);
+//        Toolbar bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.toolbar_settings, root, false);
+//        bar.setTitle("Acerca");
+//        root.addView(bar, 0); // insert at top
+//        bar.setNavigationOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                finish();
+//            }
+//        });
 	}
 	
 	@Override
