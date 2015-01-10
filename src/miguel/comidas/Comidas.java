@@ -95,18 +95,20 @@ public class Comidas extends ActionBarActivity{
      // Crear adView.
         adView = new AdView(this);
         adView.setAdUnitId(MY_AD_UNIT_ID);
-        adView.setAdSize(AdSize.BANNER);
+        adView.setAdSize(AdSize.SMART_BANNER);
 
         // Buscar LinearLayout suponiendo que se le ha asignado
         // el atributo android:id="@+id/mainLayout".
-        RelativeLayout layout = (RelativeLayout)findViewById(R.id.container);
-        System.out.println("asdfasd "+layout);
+        LinearLayout layout = (LinearLayout)findViewById(R.id.layoutPublicidad);
+        
         // Añadirle adView.
         layout.addView(adView);
 
         // Iniciar una solicitud genérica.
-        AdRequest adRequest = new AdRequest.Builder().build();
-
+        AdRequest adRequest = new AdRequest.Builder()
+        	//.addTestDevice("57AF9A674E2ADCBFB1F632125D1FFC06")
+        	.build();
+        
         // Cargar adView con la solicitud de anuncio.
         adView.loadAd(adRequest);
     }
@@ -210,7 +212,7 @@ public class Comidas extends ActionBarActivity{
 		
 		int semanaDelAño = fecha.get(Calendar.WEEK_OF_YEAR);	
 		int [] retorno = {0,0};
-		int referenciaSemana = 6;
+		int referenciaSemana = 1;
 		
 		retorno[0] = (Math.abs(semanaDelAño-referenciaSemana)%6);
 		
@@ -234,6 +236,13 @@ public class Comidas extends ActionBarActivity{
         
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.comidas, menu);
+        if(comidaDeHoy == null){
+        	Calendar calendar = Calendar.getInstance();
+        	int [] referencia = this.obtenerSemana(calendar.get(Calendar.DAY_OF_MONTH),calendar.get(Calendar.MONTH),
+        			calendar.get(Calendar.YEAR));
+        	comidaDeHoy = dbAdapter.getDia(referencia[0], referencia[1]);
+            
+        }
         String[] retorno = this.parsear(comidaDeHoy); 
          
         //Botón compartir toda la comida del día
@@ -309,12 +318,21 @@ public class Comidas extends ActionBarActivity{
         	}
         }
 		adView.resume();
+		
+		if(!mBound){
+			Intent intent = new Intent(this, DBAdapter.class);
+			bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+		}
 	}
 	
 	 @Override
 	  public void onPause() {
 		 adView.pause();
 		 super.onPause();
+		 if (mBound) {
+			unbindService(mConnection);
+			mBound = false;
+		}
 	  }
 
 	  @Override

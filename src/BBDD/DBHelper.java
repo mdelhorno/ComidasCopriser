@@ -20,7 +20,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DBHelper extends SQLiteOpenHelper {
 	private static String DATABASE_NAME = "database.db";
-	private static int DATABASE_VERSION = 4; 
+	private static int DATABASE_VERSION = 5; 
 	private Context context;
 
 	public DBHelper(Context context) {
@@ -34,7 +34,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		InputStream flujo;
 		BufferedReader lector;
 		
-		flujo = context.getResources().openRawResource(0x7f050000);
+		flujo = context.getResources().openRawResource(0x7f050001);
 		lector = new BufferedReader(new InputStreamReader(flujo));
 			
 		String linea;

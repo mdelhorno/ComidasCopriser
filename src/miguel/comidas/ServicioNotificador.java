@@ -61,7 +61,6 @@ public class ServicioNotificador extends Service {
 		Bundle bundle = intent.getExtras();
 		preferencias = PreferenceManager.getDefaultSharedPreferences(this);
 		
-		
 		if(bundle.containsKey("lanzar") && bundle.getBoolean("lanzar")){ 
 			//lanzamos la notificación  
 			lanzarNotificacion(bundle);
@@ -140,8 +139,13 @@ public class ServicioNotificador extends Service {
 	 */
 	private void prepararSigNotificacion(Calendar calendar) {	
 		if(esComida){ //preparamos una cena (la ultima notificación era una comida)
-			calendar.set(Calendar.HOUR_OF_DAY,20);
-			calendar.set(Calendar.MINUTE, 30);
+			if(preferencias.contains("horaCena") && preferencias.contains("minutoCena")){
+				calendar.set(Calendar.HOUR_OF_DAY, preferencias.getInt("horaCena", 20));
+				calendar.set(Calendar.MINUTE, preferencias.getInt("minutoCena", 30));
+			} else {
+				calendar.set(Calendar.HOUR_OF_DAY,20);
+				calendar.set(Calendar.MINUTE, 30);
+			}
 			calendar.set(Calendar.MILLISECOND, 0);
 			calendar.set(Calendar.SECOND, 0);
 			
@@ -152,8 +156,13 @@ public class ServicioNotificador extends Service {
 		} else {
 			if(sumar)
 				calendar.add(Calendar.DAY_OF_MONTH, 1);
-			calendar.set(Calendar.HOUR_OF_DAY,13);
-			calendar.set(Calendar.MINUTE, 30);
+			if(preferencias.contains("horaComida") && preferencias.contains("minutoComida")){
+				calendar.set(Calendar.HOUR_OF_DAY, preferencias.getInt("horaComida", 13));
+				calendar.set(Calendar.MINUTE, preferencias.getInt("minutoComida", 30));
+			} else {
+				calendar.set(Calendar.HOUR_OF_DAY,13);
+				calendar.set(Calendar.MINUTE, 30);
+			}
 			calendar.set(Calendar.MILLISECOND, 0);
 			calendar.set(Calendar.SECOND, 0);
 
@@ -243,7 +252,7 @@ public class ServicioNotificador extends Service {
 		
 		int semanaDelAño = fecha.get(Calendar.WEEK_OF_YEAR);	
 		int [] retorno = {0,0};
-		int referenciaSemana = 6;
+		int referenciaSemana = 1;
 		
 		retorno[0] = (Math.abs(semanaDelAño-referenciaSemana)%6);
 		

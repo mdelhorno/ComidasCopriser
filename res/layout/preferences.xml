@@ -2,10 +2,9 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-    
     <PreferenceCategory
-        android:key="ajustes"
-        android:title="Ajustes">
+        android:key="notifications"
+        android:title="Notificaciones">
         <MultiSelectListPreference
             android:key="notificaciones"
             android:summary="Cambia las opciones de las notificaciones"
@@ -19,6 +18,11 @@
 		    android:key="reiniciar"
 		    android:title="Reparar notificaciones"
 		    android:summary="Si tienes problemas con las notificaciones haz clic aquí">
+		</PreferenceScreen>
+		<PreferenceScreen
+		    android:key="cambiar"
+		    android:title="Cambiar horario notificaciones"
+		    android:summary="Cambia el horario de las notificaciones">
 		</PreferenceScreen>
     </PreferenceCategory>
     <PreferenceCategory
