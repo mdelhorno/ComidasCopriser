@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    <PreferenceCategory
+        android:key="notifications"
+        android:title="Notificaciones">
+        <MultiSelectListPreference
+            android:key="notificaciones"
+            android:summary="Cambia las opciones de las notificaciones"
+            android:title="Cambiar notificaciones"
+            android:dialogTitle="Seleccionar notificaciones que quiere que suenen"
+            android:entries="@array/tipoNotificacion"
+            android:entryValues="@array/tipoNotificacionInterna"
+            android:defaultValue="@array/tipoNotificacionDefault">            
+        </MultiSelectListPreference>
+		<PreferenceScreen
+		    android:key="reiniciar"
+		    android:title="Reparar notificaciones"
+		    android:summary="Si tienes problemas con las notificaciones haz clic aquí">
+		</PreferenceScreen>
+		<PreferenceScreen
+		    android:key="cambiar"
+		    android:title="Cambiar horario notificaciones"
+		    android:summary="Cambia el horario de las notificaciones">
+		</PreferenceScreen>
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="about"
+        android:title="Acerca">
+        <PreferenceScreen
+            android:key="acerca"         
+            android:title="Acerca de ...">            
+        </PreferenceScreen>     
+    </PreferenceCategory>
+
+</PreferenceScreen>

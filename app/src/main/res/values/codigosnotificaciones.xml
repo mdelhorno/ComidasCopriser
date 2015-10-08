@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="tipoNotificacion">
+        <item>Diario</item>
+        <item>Fin de semana</item>
+    </string-array>
+    <string-array name="tipoNotificacionInterna">
+        <item>diary</item>
+        <item>weekend</item>
+    </string-array>
+    <string-array name="tipoNotificacionDefault">
+        <item>diary</item>
+        <item>weekend</item>
+    </string-array>
+</resources>
