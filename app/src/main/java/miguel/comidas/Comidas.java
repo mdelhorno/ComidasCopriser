@@ -77,7 +77,6 @@ public class Comidas extends ActionBarActivity{
                
         
         calendario = (DatePicker) findViewById(R.id.datePicker1);
-        System.out.println(calendario.getCalendarViewShown());
         
         calendario.getCalendarView().setOnDateChangeListener(new OnDateChangeListener() {
 			
@@ -86,7 +85,6 @@ public class Comidas extends ActionBarActivity{
 					int dayOfMonth) {				
 				calendario.init(year, month, dayOfMonth, null);
 				mostrarComida(dayOfMonth,month,year);
-				
 			}
 		});
         
@@ -101,12 +99,12 @@ public class Comidas extends ActionBarActivity{
         // el atributo android:id="@+id/mainLayout".
         LinearLayout layout = (LinearLayout)findViewById(R.id.layoutPublicidad);
         
-        // A�adirle adView.
+        // Añadirle adView.
         layout.addView(adView);
 
         // Iniciar una solicitud genérica.
         AdRequest adRequest = new AdRequest.Builder()
-        	//.addTestDevice("57AF9A674E2ADCBFB1F632125D1FFC06")
+        	.addTestDevice("57AF9A674E2ADCBFB1F632125D1FFC06")
         	.build();
         
         // Cargar adView con la solicitud de anuncio.
@@ -132,7 +130,7 @@ public class Comidas extends ActionBarActivity{
         String [] diaAux = dbAdapter.getDia(referencia[0], referencia[1]);
         String [] dia = this.parsear(diaAux);
         data.add(dia);
-         
+
         ArrayList<HashMap<String, String>> People = new ArrayList<HashMap<String, String>>(); 
         for (String[] person : data) { 
         	HashMap<String, String> personData = new HashMap<String, String>();
@@ -212,7 +210,7 @@ public class Comidas extends ActionBarActivity{
 		
 		int semanaDelAño = fecha.get(Calendar.WEEK_OF_YEAR);
 		int [] retorno = {0,0};
-		int referenciaSemana = 1;
+		int referenciaSemana = 6;
 		
 		retorno[0] = (Math.abs(semanaDelAño-referenciaSemana)%6);
 		
@@ -253,7 +251,6 @@ public class Comidas extends ActionBarActivity{
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TEXT,mensaje);
         actionProvider.setShareIntent(intent);                      
-        
         return true;
     }
 
@@ -291,8 +288,10 @@ public class Comidas extends ActionBarActivity{
 	protected void onStart() {
 		super.onStart();
 		// Bind to LocalService
-		Intent intent = new Intent(this, DBAdapter.class);
-		bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+		if(!mBound) {
+			Intent intent = new Intent(this, DBAdapter.class);
+			bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+		}
 	}
 
 	@Override

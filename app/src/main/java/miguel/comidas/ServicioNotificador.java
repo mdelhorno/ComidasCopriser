@@ -55,23 +55,28 @@ public class ServicioNotificador extends Service {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
 
-	public void onStart(Intent intent, int startId){
-		Bundle bundle = intent.getExtras();
-		preferencias = PreferenceManager.getDefaultSharedPreferences(this);
-		
-		if(bundle.containsKey("lanzar") && bundle.getBoolean("lanzar")){ 
-			//lanzamos la notificación
-			lanzarNotificacion(bundle);
-			sumar = true; //se suma cuando lanzamos la notificación. Si no, se trataría de un inicio o reinicio de las
-			//notificaciones, y en ese caso ya se pasa la fecha correcta.
-		}  
-		esComida = bundle.containsKey("comida");
-		prepararSigNotificacion((Calendar)bundle.getSerializable("id"));
-		
-		this.stopSelf();
-	}
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        // The service is starting, due to a call to startService()
+
+        Bundle bundle = intent.getExtras();
+        preferencias = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if(bundle.containsKey("lanzar") && bundle.getBoolean("lanzar")){
+            //lanzamos la notificación
+            lanzarNotificacion(bundle);
+            sumar = true; //se suma cuando lanzamos la notificación. Si no, se trataría de un inicio o reinicio de las
+            //notificaciones, y en ese caso ya se pasa la fecha correcta.
+        }
+        esComida = bundle.containsKey("comida");
+        prepararSigNotificacion((Calendar)bundle.getSerializable("id"));
+
+        this.stopSelf();
+
+        return START_REDELIVER_INTENT;
+    }
 	
 	@Override
 	public void onCreate() {
@@ -104,7 +109,9 @@ public class ServicioNotificador extends Service {
 		if(comida!=null){
 			from = "Comida";
 			message = comida;
-		} else if(cena!=null){
+		}
+
+		if(cena!=null){
 			from = "Cena";
 			message = cena;
 			if(calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SATURDAY || calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SUNDAY){
@@ -221,7 +228,7 @@ public class ServicioNotificador extends Service {
 	}
 	
 	/** Devuelve verdadero o falso si las preferencias se cumplen o no. Para ello comprueba si están activas las notificaciones
-	 * de entre diario y es día de diario o si estín activas las notificaciones de los fines de semana y es fin de semana.
+	 * de entre diario y es día de diario o si están activas las notificaciones de los fines de semana y es fin de semana.
 	 * 
 	 * @param calendar
 	 * @return true si es día de diario y tenemos seleccionado el día de diario en las preferencias o
@@ -234,8 +241,8 @@ public class ServicioNotificador extends Service {
 		Set<String> s = preferencias.getStringSet("notificaciones", a);		
 		return (s.contains("weekend") && (calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SATURDAY || calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SUNDAY)) 
 				|| (s.contains("diary") && (calendar.get(Calendar.DAY_OF_WEEK)==Calendar.MONDAY || calendar.get(Calendar.DAY_OF_WEEK)==Calendar.TUESDAY 
-				|| calendar.get(Calendar.DAY_OF_WEEK)==Calendar.WEDNESDAY || calendar.get(Calendar.DAY_OF_WEEK)==Calendar.THURSDAY 
-				|| calendar.get(Calendar.DAY_OF_WEEK)==Calendar.FRIDAY));
+				    || calendar.get(Calendar.DAY_OF_WEEK)==Calendar.WEDNESDAY || calendar.get(Calendar.DAY_OF_WEEK)==Calendar.THURSDAY
+				    || calendar.get(Calendar.DAY_OF_WEEK)==Calendar.FRIDAY));
 	}
 	
 	/** Obtiene la semana y el día que hay que obtener de la base de datos a partir de un día dado. La base de datos está
@@ -252,7 +259,7 @@ public class ServicioNotificador extends Service {
 		
 		int semanaDelAño = fecha.get(Calendar.WEEK_OF_YEAR);
 		int [] retorno = {0,0};
-		int referenciaSemana = 1;
+		int referenciaSemana = 6;
 		
 		retorno[0] = (Math.abs(semanaDelAño-referenciaSemana)%6);
 		

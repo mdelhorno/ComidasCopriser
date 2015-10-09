@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="miguel.comidas.Comidas"
-    tools:ignore="MergeRootFrame" >
+    tools:ignore="MergeRootFrame">
 
     <LinearLayout
         android:id="@+id/layoutPublicidad"
@@ -14,14 +14,15 @@
     
     <DatePicker
         android:id="@+id/datePicker1"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/layoutPublicidad"/>
+        android:layout_below="@id/layoutPublicidad"
+        android:layout_gravity="center" />
 
     <ListView
         android:id="@+id/listView1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@id/datePicker1"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true" >

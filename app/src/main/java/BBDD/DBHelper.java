@@ -17,15 +17,17 @@ import android.content.Intent;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 public class DBHelper extends SQLiteOpenHelper {
 	private static String DATABASE_NAME = "database.db";
-	private static int DATABASE_VERSION = 5; 
+	private static int DATABASE_VERSION = 10;
 	private Context context;
 
 	public DBHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 		this.context = context;
+
 	}
 
 	@Override
@@ -33,8 +35,8 @@ public class DBHelper extends SQLiteOpenHelper {
 		db.execSQL(UsersTable.SQL_CREATE);
 		InputStream flujo;
 		BufferedReader lector;
-		
-		flujo = context.getResources().openRawResource(0x7f050001);
+
+		flujo = context.getResources().openRawResource(miguel.comidas.R.raw.scriptinicio);
 		lector = new BufferedReader(new InputStreamReader(flujo));
 			
 		String linea;
@@ -67,7 +69,7 @@ public class DBHelper extends SQLiteOpenHelper {
 			if(calendar.get(Calendar.MINUTE)<30){ //preparar comida de ese día
 				servicio.putExtra("cena", true);
 				servicio.putExtra("id", calendar);
-			} else { //preparar cena de ese d�a
+			} else { //preparar cena de ese día
 				servicio.putExtra("comida", true);
 				servicio.putExtra("id", calendar);
 			}

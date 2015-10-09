@@ -36,7 +36,9 @@ public class Notificador extends BroadcastReceiver {
 		
 		if(comida!=null){
 			servicio.putExtra("comida", comida);
-		} else if(cena!=null){
+		}
+
+        if(cena!=null){
 			servicio.putExtra("cena", cena);
 		}
 		
