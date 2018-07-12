@@ -10,7 +10,8 @@ Compiled source #
 *.settings
 *.project
 *.pydevproject
-
+*.rossi
+*.xml
  
 # Packages #
 ############
@@ -24,6 +25,11 @@ Compiled source #
 *.rar
 *.tar
 *.zip
+*.apk
+*.ap_
+*.lock
+*.bin
+*.bat
  
 # Logs and databases #
 ######################
@@ -47,4 +53,17 @@ Thumbs.db
 *.toc
 *.out
 *.aux
+*.blg
 
+app/build/**
+.idea/**
+build/**
+.signing/
+.gradle/
+gradle/
+*.iml
+*.txt
+.classpath
+bin/*
+gen/*
+gradlew
